@@ -14,7 +14,7 @@ use std::path::Path;
 use std::time::Duration;
 
 const MAX_RESPONSE_BYTES: usize = 1024 * 1024;
-const DESCRIPTION: &str = "Compile in an isolated Linux sandbox using Jcode subscription cloud-compute credits (shared with cloud agents). Uploads eligible source files and returns compiler output and metered usage. Requires a Jcode subscription; use action=status to check access and credits. Use only when the user has requested remote builds or authorized source sharing. Failed builds also consume credits. No automatic top-ups.";
+const DESCRIPTION: &str = "Compile in an isolated Linux sandbox on Jcode subscription credits.";
 const SUBSCRIBE: &str = "Remote compilation requires a Jcode subscription. Tell the user to subscribe at https://jcode.sh/pricing, then sign in with `jcode account login`. Do not open checkout or purchase automatically.";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -343,9 +343,9 @@ impl Tool for CompileRemoteTool {
             "type": "object",
             "properties": {
                 "intent": super::intent_schema_property(),
-                "action": {"type":"string","enum":["compile","status"],"description":"compile (default) uploads source and spends credits. status checks access without uploading."},
+                "action": {"type":"string","enum":["compile","status"],"description":"compile (default) uploads source and spends credits. status checks access and credit balance without uploading. Requires a Jcode subscription; failed builds still consume credits and there are no automatic top-ups."},
                 "command": {"type":"string","maxLength":8192,"description":"Remote Linux build command, e.g. cargo check. Required for compile. Never include secrets."},
-                "path": {"type":"string","description":"Git repo root relative to workspace (default cwd). Uploads tracked/untracked non-ignored files."},
+                "path": {"type":"string","description":"Git repo root relative to workspace (default cwd). Uploads tracked/untracked non-ignored files, so only compile when the user asked for a remote build or authorized sharing the source."},
                 "timeout_seconds": {"type":"integer","minimum":1,"maximum":600,"description":"Build deadline in seconds, default 300. Credits reserved up front, settled by measured usage."}
             }
         })
